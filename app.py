@@ -1,6 +1,6 @@
 from flask import Flask, render_template, request, jsonify, session, redirect, url_for
 import sqlite3
-import os  # [Added] Required for absolute paths and environment variables
+import os
 
 app = Flask(__name__)
 app.secret_key = 'your_secret_key_here' 
@@ -9,15 +9,33 @@ app.secret_key = 'your_secret_key_here'
 ADMIN_USERNAME = "BERTHE FADEL" 
 ADMIN_PASSWORD = "4BTH1998"      
 
-# [Added] Define the absolute path to your database folder
+# Define the absolute path to your database
 BASE_DIR = os.path.abspath(os.path.dirname(__file__))
 DB_PATH = os.path.join(BASE_DIR, 'content_data.db')
 
 def get_db_connection():
-    # [Updated] Uses the absolute path so Render can always find the file
+    """Establish a connection to the SQLite database."""
     conn = sqlite3.connect(DB_PATH) 
     conn.row_factory = sqlite3.Row
     return conn
+
+def init_db():
+    """Creates required tables if they do not exist in the database."""
+    conn = get_db_connection()
+    # Create services table
+    conn.execute('''CREATE TABLE IF NOT EXISTS services 
+                    (id INTEGER PRIMARY KEY AUTOINCREMENT, icon TEXT, title TEXT, description TEXT)''')
+    # Create events table
+    conn.execute('''CREATE TABLE IF NOT EXISTS events 
+                    (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, event_date TEXT, description TEXT)''')
+    # Create news table
+    conn.execute('''CREATE TABLE IF NOT EXISTS news 
+                    (id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, date TEXT, content TEXT)''')
+    conn.commit()
+    conn.close()
+
+# Run database initialization once when the app starts
+init_db()
 
 # --- PUBLIC ROUTES ---
 
@@ -125,6 +143,5 @@ def delete_event(id):
 # --- SERVER STARTUP ---
 
 if __name__ == '__main__':
-    # [Updated] Allows Render to specify the port and makes the app visible online
     port = int(os.environ.get("PORT", 5000))
     app.run(host='0.0.0.0', port=port)
