@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Edit Service - Koulé Ingenium</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body style="padding: 50px; background: #f4f7f6;">
+    <div style="max-width: 600px; margin: auto; background: white; padding: 30px; border-radius: 10px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
+        <h2>Modify Service</h2>
+        <form action="/update_service/{{ service.id }}" method="POST">
+            <label>Icon Class</label>
+            <input type="text" name="icon" value="{{ service.icon }}" class="form-control">
+            
+            <label>Service Title</label>
+            <input type="text" name="title" value="{{ service.title }}" class="form-control">
+            
+            <label>Description</label>
+            <textarea name="description" class="form-control" rows="5">{{ service.description }}</textarea>
+            
+            <div style="margin-top: 20px;">
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+                <a href="/admin" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</body>
+</html>

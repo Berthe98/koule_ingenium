@@ -1,0 +1,13 @@
+# Database
+content_data.db
+*.sqlite3
+
+# Python
+__pycache__/
+*.py[cod]
+venv/
+.env
+
+# Windows
+Thumbs.db
+.DS_Store

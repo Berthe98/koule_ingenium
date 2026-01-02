@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Koulé Ingenium - Admin Panel</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; margin: 0; }
+        .admin-header { padding: 20px; background: #2c3e50; color: white; display: flex; justify-content: space-between; align-items: center; }
+        .admin-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 25px; padding: 25px; }
+        .card { background: #fff; padding: 25px; border-radius: 10px; border: 1px solid #ddd; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+        .form-control { width: 100%; padding: 10px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
+        .btn-edit { color: #f39c12; margin-right: 15px; text-decoration: none; font-weight: bold; font-size: 14px; }
+        .btn-delete { color: #dc3545; cursor: pointer; border: none; background: none; padding: 0; font-size: 16px; transition: 0.2s; }
+        .btn-delete:hover { transform: scale(1.2); }
+        .list-item { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #eee; }
+        .scroll-area { max-height: 500px; overflow-y: auto; padding-right: 10px; }
+        h3 { border-bottom: 2px solid #eee; padding-bottom: 10px; margin-top: 0; color: #2c3e50; }
+        .empty-msg { text-align: center; color: #999; padding: 20px; font-style: italic; }
+        .btn-primary { background: #3498db; color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer; width: 100%; }
+        .btn-success { background: #27ae60; color: white; border: none; padding: 10px; border-radius: 5px; cursor: pointer; width: 100%; }
+    </style>
+</head>
+<body>
+    <div class="admin-header">
+        <h2><i class="fas fa-user-shield"></i> Management Control Panel</h2>
+        <div style="display: flex; gap: 20px; align-items: center;">
+            <a href="/" style="color: white; text-decoration: none;"><i class="fas fa-eye"></i> View Site</a>
+            <a href="/logout" style="color: white; text-decoration: none; font-weight: bold;">
+                <i class="fas fa-sign-out-alt"></i> Logout
+            </a>
+        </div>
+    </div>
+
+    <div class="admin-grid">
+        <div class="card">
+            <h3><i class="fas fa-calendar-plus"></i> Planifique (Upcoming Event)</h3>
+            <form action="/add_event" method="POST">
+                <input type="text" name="event_title" placeholder="Event Name" class="form-control" required>
+                <input type="date" name="event_date" class="form-control" required>
+                <textarea name="event_desc" placeholder="Event Details..." class="form-control" rows="3"></textarea>
+                <button type="submit" class="btn btn-primary">Schedule Event</button>
+            </form>
+
+            <h3 style="margin-top: 35px;"><i class="fas fa-plus-circle"></i> Add New Service</h3>
+            <form action="/add_service" method="POST">
+                <input type="text" name="icon" placeholder="FontAwesome Icon (e.g., fas fa-tools)" class="form-control" required>
+                <input type="text" name="title" placeholder="Service Title" class="form-control" required>
+                <textarea name="description" placeholder="Service Description..." class="form-control" rows="3"></textarea>
+                <button type="submit" class="btn btn-success">Publish Service</button>
+            </form>
+        </div>
+
+        <div class="card">
+            <h3><i class="fas fa-tasks"></i> Manage Features</h3>
+            
+            <input type="text" id="adminSearch" onkeyup="filterList()" placeholder="Quick search services or events..." class="form-control">
+
+            <div class="scroll-area">
+                <h4 style="color: #2c3e50; margin-bottom: 10px;">Services</h4>
+                <div id="servicesList">
+                    {% for service in services %}
+                    <div class="list-item search-target">
+                        <span><strong>{{ service.title }}</strong></span>
+                        <div>
+                            <a href="/edit_service/{{ service.id }}" class="btn-edit"><i class="fas fa-edit"></i> Edit</a>
+                            <form action="/delete_service/{{ service.id }}" method="POST" style="display:inline;" onsubmit="return confirm('Permanently delete this service?');">
+                                <button type="submit" class="btn-delete"><i class="fas fa-trash"></i></button>
+                            </form>
+                        </div>
+                    </div>
+                    {% else %}
+                    <p class="empty-msg">No services published yet.</p>
+                    {% endfor %}
+                </div>
+
+                <h4 style="margin-top: 30px; color: #2c3e50; margin-bottom: 10px;">Upcoming Events</h4>
+                <div id="eventsList">
+                    {% for event in events %}
+                    <div class="list-item search-target">
+                        <span><small>{{ event.event_date }}</small> — <strong>{{ event.title }}</strong></span>
+                        <div>
+                            <form action="/delete_event/{{ event.id }}" method="POST" style="display:inline;" onsubmit="return confirm('Remove this event from the timeline?');">
+                                <button type="submit" class="btn-delete"><i class="fas fa-trash"></i></button>
+                            </form>
+                        </div>
+                    </div>
+                    {% else %}
+                    <p class="empty-msg">No events scheduled yet.</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function filterList() {
+            let input = document.getElementById('adminSearch').value.toLowerCase();
+            let targets = document.querySelectorAll('.search-target');
+            
+            targets.forEach(item => {
+                let text = item.textContent.toLowerCase();
+                item.style.display = text.includes(input) ? '' : 'none';
+            });
+        }
+    </script>
+</body>
+</html>
